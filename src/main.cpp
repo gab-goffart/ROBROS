@@ -1,107 +1,90 @@
 #include <LibRobus.h>
 
 const int LIGNE1 = 26805;
-const int LIGNE2 = 2680;
-const int LIGNE4 = 600;
-const int LIGNE5 = 3400;
-const int LIGNE6 = 4800;
-const int LIGNE7 = 2680;
+const int LIGNE2 = 500;
+const int LIGNE3 = 500;
+const int LIGNE4 = 400;
+const int LIGNE5 = 2400;
+const int LIGNE6 = 5500;
+const int LIGNE7 = 1500;
 const int LIGNE8 = 9381;
 
-const int QUART = 650;
+const int QUART = 780;
 
 void ResetEncodeurs();
 int CalculerErreurDroite();
-void TournerDroite(int ms);
-void TournerGauche(int ms);
 void Avancer();
+void Avancer(int pulse);
+void Tourner(const int MS, const int MOTEUR);
+void DemiTour();
 
 
 
 //poser une vitesse x pour moteur 0 et 1
-//0.7
-float vTarget = 0.7;
-//0.2
-float vDemiVitesse = 0.2;
+//0.6
+float vTarget = 0.6;
+
+//tier de vTarget
+float vDemiVitesse = vTarget / 3;
 float vGauche = 0.15;
 float vDroite = vGauche;
 
 const float KP = 0.001; //IDEAL : 0.001
 const float KI = 0.0001; //IDEAL : 0.0001
 
-//float ki = 0;
-
 int erreurDroite = 0;
 int erreurTotale = 0;
 int tempsCycle = 150; //en ms
 int dParcouru = 0;
 
+// void setup() {
+
+
+//     BoardInit();
+//     MOTOR_SetSpeed(LEFT, vTarget);
+//     MOTOR_SetSpeed(RIGHT, vTarget);
+    
+//     Avancer(8000);
+//     Tourner(QUART, RIGHT);
+//     MOTOR_SetSpeed(LEFT, 0);
+//     MOTOR_SetSpeed(RIGHT, 0);
+// }
+
 void setup() {
 
     BoardInit();
-    //allumer les deux moteurs
-    MOTOR_SetSpeed(LEFT, vGauche);
-    MOTOR_SetSpeed(RIGHT, vDroite);
-}
 
-void loop() {
-
-    while(dParcouru < LIGNE1){
-        Avancer();
-        dParcouru += ENCODER_Read(LEFT);
-    }
-    dParcouru = 0;
+    Avancer(LIGNE1);
     
-    TournerGauche(QUART);
-
-    TournerDroite(QUART);
-
-    Avancer();
-
-    TournerDroite(QUART);   
-
-    while(dParcouru < LIGNE4) {
-        Avancer();
-        dParcouru += ENCODER_Read(LEFT);
-    }
-    dParcouru = 0;
+    Tourner(QUART, LEFT);
     
+    Avancer(LIGNE2);
     
-    TournerGauche(QUART);   
-    TournerDroite(2*QUART/3);
+    Tourner(QUART, RIGHT);
 
+    Tourner(QUART, RIGHT);
 
-    while(dParcouru < LIGNE5) {
-        Avancer();
-        dParcouru += ENCODER_Read(LEFT);
-    }
-    dParcouru = 0;
-
+    Avancer(LIGNE4);
     
-    TournerGauche(QUART);   
+    Tourner(QUART, LEFT);
 
-    while(dParcouru < LIGNE6) {
-        Avancer();
-        dParcouru += ENCODER_Read(LEFT);
-    }
-    dParcouru = 0;
+    Avancer(LIGNE4);
 
-    TournerDroite(QUART / 2);
+    Tourner((1 * QUART/3), RIGHT);
 
-    while(dParcouru < LIGNE7) {
-        Avancer();
-        dParcouru += ENCODER_Read(LEFT);
-    }
-    dParcouru = 0;
+    Avancer(LIGNE5);
+    
+    Tourner(12 * QUART / 11, LEFT);
 
-    TournerDroite(QUART / 4);
+    Avancer(LIGNE6);
 
-    while(dParcouru < LIGNE8) {
-        Avancer();
+    Tourner((1 * QUART / 3), RIGHT);
 
-        dParcouru += ENCODER_Read(LEFT);
-    }
-    dParcouru = 0;
+    Avancer(LIGNE7);
+
+    Tourner(QUART / 5, RIGHT);
+
+    Avancer(LIGNE8);
 
     vGauche = 0;
     vDroite = 0;
@@ -111,22 +94,22 @@ void loop() {
     
     dParcouru = 0;
 
+    delay(tempsCycle * 5);
+    DemiTour();
+}
+
+void loop() {
+
     exit(0);
 
 }
 
-void TournerGauche(int ms) {
-    MOTOR_SetSpeed(LEFT, vDemiVitesse);
-    delay(ms);
-    MOTOR_SetSpeed(LEFT, vGauche);
-    delay(100);
-    ResetEncodeurs();
-}
+void Tourner(const int MS, const int MOTEUR) {
+    
 
-void TournerDroite(int ms) {
-    MOTOR_SetSpeed(RIGHT, vDemiVitesse);
-    delay(ms);
-    MOTOR_SetSpeed(RIGHT, vDroite);
+    MOTOR_SetSpeed(MOTEUR, vDemiVitesse);
+    delay(MS);
+    MOTOR_SetSpeed(MOTEUR, vDroite);
     delay(tempsCycle);
     ResetEncodeurs();
 }
@@ -154,6 +137,15 @@ void Avancer(){
     vDroite += (erreurDroite * KP) + (erreurTotale * KI) ;
 }
 
+void Avancer(int pulse) {
+    while (dParcouru < pulse ) {
+        Avancer();
+        dParcouru += ENCODER_Read(LEFT);
+    }
+
+    dParcouru = 0;
+}
+
 void ResetEncodeurs(){
     ENCODER_Reset(LEFT);
     ENCODER_Reset(RIGHT);
@@ -162,3 +154,34 @@ void ResetEncodeurs(){
 int CalculerErreurDroite() {
     return ENCODER_Read(LEFT) - ENCODER_Read(RIGHT); 
 }
+
+void DemiTour() {
+    MOTOR_SetSpeed(LEFT, 0.5);
+    MOTOR_SetSpeed(RIGHT, -0.5);
+
+    delay(5 * tempsCycle);
+
+    MOTOR_SetSpeed(LEFT, 0);
+    MOTOR_SetSpeed(RIGHT, 0);
+
+    ResetEncodeurs();
+}
+
+/* NOT USED ANYMORE
+
+void TournerDroite(int ms) {
+    MOTOR_SetSpeed(RIGHT, vDemiVitesse);
+    delay(ms);
+    MOTOR_SetSpeed(RIGHT, vDroite);
+    delay(tempsCycle);
+    ResetEncodeurs();
+}
+
+void TournerGauche(int ms) {
+    MOTOR_SetSpeed(LEFT, vDemiVitesse);
+    delay(ms);
+    MOTOR_SetSpeed(LEFT, vGauche);
+    delay(100);
+    ResetEncodeurs();
+}
+*/
