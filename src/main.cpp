@@ -47,7 +47,7 @@ int nbR = 0;
 
 void setup() {
     BoardInit();
-    //delay(2000);
+    delay(5000);
     Serial.begin(9600);
     Pattern();
     //MOTOR_SetSpeed(LEFT, 0);
@@ -62,30 +62,6 @@ void Random() {
     int random = 0;
     int temps = 0;
     
-    // do {
-    //     random = (rand() % 2) + 1;
-    //     temps = ((rand() % 2) + 1) * 1000 ;
-    // } while(random == (lastRand < 3 ? lastRand: lastRand - 2) );
-
-    // if(lastRand < 3) {
-    //     random += 2;
-    // }
-
-    // if(random < 3){
-    //     if(nbA > 2){
-    //         Reculer(2500);
-    //         lastRand = choix::AVANCER;
-    //         nbA = 0;
-    //         return;
-    //     }
-    //     if(nbR > 2) {
-    //         Avancer(2500);
-    //         lastRand = choix::RECULER;
-    //         nbR = 0;
-    //         return;
-    //     }
-    // }
-
     //trouver une valeur random à exécuter.
         //si le dernier choix était tourner, on va choisir avancer/reculer
         //si le dernier choix était avancer/reculer, on va choisir tourner
