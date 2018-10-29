@@ -255,9 +255,6 @@ int CalculerErreurDroite() {
 }
 
 bool Son() {
-    delay(50);
-    return false;
-    //Serial.println(analogRead(A0) * (5.0/1023.0) );
     for(int i =0; i< 4; i++){
         bool isHigh = ( analogRead(A0) * (5/1023.0) ) > 2.8;
         if(!isHigh) {
